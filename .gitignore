@@ -8,3 +8,6 @@ __pycache__/
 
 # Txt files
 *.txt
+
+# HTML files
+html_files/

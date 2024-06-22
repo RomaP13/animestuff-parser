@@ -20,6 +20,7 @@ def find_header_by_partial_match(soup: BeautifulSoup,
     """
     # Find all header tags (h1, h2, h3, etc.)
     headers = soup.find_all(re.compile(r'^h\d$'))
+    print(headers)
     for header in headers:
         if keyword.lower() in header.text.lower():
             return header
@@ -39,10 +40,13 @@ def get_novel_title(novel_url: str, soup: BeautifulSoup) -> str:
     Returns:
         str: The novel title or "Not found" if the title cannot be retrieved.
     """
-    title_header = soup.find("h2")
+    title = soup.find("title")
 
-    if title_header:
-        novel_title = title_header.text.strip()
+    if not title or not title.text.strip():
+        title = find_header_by_partial_match(soup, "EPUB")
+
+    if title:
+        novel_title = title.text.strip()
         if novel_title:
             return novel_title
         else:

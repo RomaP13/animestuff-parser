@@ -3,25 +3,11 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
+from utils.url_utils import extract_filename_from_url, url_exists
+
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
-
-
-def url_exists(url: str) -> bool:
-    """
-    Check if a given URL exists by making a HEAD request.
-    Args:
-        url (str): The URL to check.
-    Returns:
-        bool: True if the URL exists (status code 200), False otherwise.
-    """
-    try:
-        response = requests.head(url)
-        return response.status_code == 200
-    except requests.RequestException as e:
-        logging.error(f"Error checking URL {url}: {e}")
-        return False
 
 
 def get_novels_url_list(base_url: str, file_name: str) -> None:
