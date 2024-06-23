@@ -11,3 +11,6 @@ __pycache__/
 
 # HTML files
 html_files/
+
+# Log files
+logs/

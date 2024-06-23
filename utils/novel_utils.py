@@ -20,7 +20,6 @@ def find_header_by_partial_match(soup: BeautifulSoup,
     """
     # Find all header tags (h1, h2, h3, etc.)
     headers = soup.find_all(re.compile(r'^h\d$'))
-    print(headers)
     for header in headers:
         if keyword.lower() in header.text.lower():
             return header
