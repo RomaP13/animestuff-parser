@@ -46,7 +46,9 @@ def get_novel_title(novel_url: str, soup: BeautifulSoup) -> str:
 
     if title:
         novel_title = title.text.strip()
-        if novel_title:
+        if novel_title.startswith("(EPUB)"):
+            return novel_title[7:]
+        elif novel_title:
             return novel_title
         else:
             logging.warning(f"Novel title wasn't found. URL: {novel_url}")

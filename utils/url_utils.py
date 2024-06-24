@@ -36,3 +36,16 @@ def extract_filename_from_url(url: str) -> str:
         return filename[len("html"):]
 
     return filename
+
+
+def sanitize_filename(filename: str) -> str:
+    """
+    Replaces '/' character in filenames with underscore.
+
+    Args:
+        filename (str): The original filename.
+
+    Returns:
+        str: The sanitized filename.
+    """
+    return filename.replace("/", "_")
