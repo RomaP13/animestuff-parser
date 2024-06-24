@@ -6,9 +6,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Txt files
-*.txt
-
 # HTML files
 html_files/
 
