@@ -1,3 +1,4 @@
+import os
 from modules.logging_config import setup_logging
 from modules.novel_parser import (download_novel_html_files, get_all_novels,
                                   get_data_from_html_files)
@@ -6,13 +7,16 @@ from modules.novel_parser import (download_novel_html_files, get_all_novels,
 def main() -> None:
     WEBSITE_BASE_URL = "https://animestuff.me/"
     NOVEL_BASE_URL = "https://animestuff.me/docs/assets/html/"
-    NOVELS_FILE = "all_novels_dict.json"
-    DIRECTORY = "html_files"
-    DATA_FILE = "data.json"
+    HTML_FILES_DIR = "html_files"
+    DATA_DIR = "data"
+    DATA_FILE = os.path.join(DATA_DIR, "data.json")
+    NOVELS_FILE = os.path.join(DATA_DIR, "all_novels_dict.json")
+
+    os.makedirs(DATA_DIR, exist_ok=True)
 
     get_all_novels(WEBSITE_BASE_URL, NOVEL_BASE_URL, NOVELS_FILE)
-    download_novel_html_files(NOVELS_FILE, DIRECTORY)
-    get_data_from_html_files(DIRECTORY, NOVELS_FILE, DATA_FILE)
+    download_novel_html_files(NOVELS_FILE, HTML_FILES_DIR)
+    get_data_from_html_files(HTML_FILES_DIR, NOVELS_FILE, DATA_FILE)
 
 
 if __name__ == "__main__":

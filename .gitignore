@@ -11,3 +11,6 @@ html_files/
 
 # Log files
 logs/
+
+# Data files
+data/
