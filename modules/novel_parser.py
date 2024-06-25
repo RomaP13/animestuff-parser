@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 from utils.novel_utils import (get_novel_genres, get_novel_status,
                                get_novel_synopsis, get_novel_title,
                                get_number_of_volumes)
-from utils.url_utils import extract_filename_from_url, url_exists
+from utils.url_utils import (extract_filename_from_url, sanitize_filename,
+                             url_exists)
 
 
 def get_all_novels(website_base_url: str, novel_base_url: str,
@@ -45,7 +46,8 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
             for novel_title, novel_link in zip(novel_titles, novel_links):
                 novel_url = novel_link.get("href")
                 filename = extract_filename_from_url(novel_url)
-                novel_url = novel_base_url + filename
+                sanitized_title = sanitize_filename(filename)
+                novel_url = novel_base_url + sanitized_title
 
                 all_novels_dict[novel_title.text.strip()] = novel_url
                 logging.info(f"Added novel: {novel_title.text.strip()}")
