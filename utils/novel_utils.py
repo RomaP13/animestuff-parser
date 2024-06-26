@@ -58,6 +58,36 @@ def get_novel_title(novel_url: str, soup: BeautifulSoup) -> str:
     return "Not found"
 
 
+def get_novel_image_url(novel_url: str, soup: BeautifulSoup) -> str:
+    """
+    Extracts the URL of the novel's cover image from a BeautifulSoup object.
+
+    Args:
+        novel_url (str): The URL of the novel.
+        soup (BeautifulSoup): A BeautifulSoup object representing
+        the parsed HTML content.
+
+    Returns:
+        str: The URL of the novel's cover image or "Not found".
+    """
+    div_tag = soup.find(class_="ani")
+    if not div_tag:
+        logging.warning(f"Div tag not found for URL: {novel_url}")
+        return "Not found"
+
+    image_tag = div_tag.find("img")
+    if not isinstance(image_tag, Tag):
+        logging.warning(f"Image tag not found for URL: {novel_url}")
+        return "Not found"
+
+    image_url = image_tag.get("src", "")
+    if not image_url:
+        logging.warning(f"Image URL not found for URL: {novel_url}")
+        return "Not found"
+
+    return image_url
+
+
 def get_novel_status(novel_url: str, soup: BeautifulSoup) -> str:
     """
     Retrieves the status of a novel from a BeautifulSoup object.

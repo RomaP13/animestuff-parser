@@ -7,9 +7,9 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-from utils.novel_utils import (get_novel_genres, get_novel_status,
-                               get_novel_synopsis, get_novel_title,
-                               get_number_of_volumes)
+from utils.novel_utils import (get_novel_genres, get_novel_image_url,
+                               get_novel_status, get_novel_synopsis,
+                               get_novel_title, get_number_of_volumes)
 from utils.url_utils import (extract_filename_from_url, sanitize_filename,
                              url_exists)
 
@@ -66,8 +66,6 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
 
 def download_novel_html_files(file_name: str, directory: str) -> None:
     logging.info(f"(2) Downloading novel HTML files to {directory}...")
-    if not os.path.exists(directory):
-        os.makedirs(directory)
 
     with open(file_name, "r") as file:
         all_novels = json.load(file)
@@ -90,18 +88,19 @@ def download_novel_html_files(file_name: str, directory: str) -> None:
             logging.error(f"Error downloading URL {novel_url}: {e}")
 
 
-def get_data_from_html_files(directory: str, json_file_name: str,
+def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
+                             media_dir: str, all_novels_file: str,
                              data_file: str) -> None:
-    logging.info(f"(3) Extracting data from HTML files in {directory}...")
+    logging.info(f"(3) Extracting data from HTML files in {html_files_dir}...")
 
-    with open(json_file_name, "r", encoding="utf-8") as file:
-        all_novels = json.load(file)
+    with open(all_novels_file, "r", encoding="utf-8") as json_file:
+        all_novels = json.load(json_file)
 
     data_dict = []
     count = 0
-    for file_name in os.listdir(directory):
+    for file_name in os.listdir(html_files_dir):
         if file_name.endswith(".html"):
-            file_path = os.path.join(directory, file_name)
+            file_path = os.path.join(html_files_dir, file_name)
             novel_title = file_name.rsplit(".", 1)[0]
             novel_url = all_novels.get(novel_title, "URL not found")
             if novel_url == "URL not found":
@@ -112,10 +111,29 @@ def get_data_from_html_files(directory: str, json_file_name: str,
                 soup = BeautifulSoup(page_content, "lxml")
 
                 novel_title = get_novel_title(novel_url, soup)
+                novel_image_url = get_novel_image_url(novel_url, soup)
                 novel_status = get_novel_status(novel_url, soup)
                 novel_synopsis = get_novel_synopsis(novel_url, soup)
                 novel_genres = get_novel_genres(novel_url, soup)
                 novel_num_volumes = get_number_of_volumes(novel_url, soup)
+
+                # Download the image
+                novel_image_url = novel_base_url + novel_image_url
+                if not url_exists(novel_image_url):
+                    logging.warning(f"URL does not exist: {novel_image_url}")
+                    image_path = "Not found"
+                else:
+                    try:
+                        response = requests.get(novel_image_url)
+                    except requests.RequestException as e:
+                        logging.error(f"Error fetching URL {novel_image_url}: {e}")
+                        image_path = "Not found"
+                    else:
+                        # Save the image
+                        image_path = os.path.join("media", f"{novel_title}.png")
+                        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+                        with open(image_path, "wb") as image:
+                            image.write(response.content)
 
                 data = {
                     "title": novel_title,
@@ -123,6 +141,7 @@ def get_data_from_html_files(directory: str, json_file_name: str,
                     "synopsis": novel_synopsis,
                     "genres": novel_genres,
                     "num_volumes": novel_num_volumes,
+                    "image": image_path,
                     "url": novel_url
                 }
                 data_dict.append(data)
