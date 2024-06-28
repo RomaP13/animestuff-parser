@@ -7,9 +7,10 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-from utils.novel_utils import (get_novel_genres, get_novel_image_url,
-                               get_novel_status, get_novel_synopsis,
-                               get_novel_title, get_number_of_volumes)
+from utils.novel_utils import (download_novel_image, get_novel_genres,
+                               get_novel_image_url, get_novel_status,
+                               get_novel_synopsis, get_novel_title,
+                               get_number_of_volumes)
 from utils.url_utils import (extract_filename_from_url, sanitize_filename,
                              url_exists)
 
@@ -46,10 +47,10 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
             for novel_title, novel_link in zip(novel_titles, novel_links):
                 novel_url = novel_link.get("href")
                 filename = extract_filename_from_url(novel_url)
+                novel_url = novel_base_url + filename
                 sanitized_title = sanitize_filename(filename)
-                novel_url = novel_base_url + sanitized_title
 
-                all_novels_dict[novel_title.text.strip()] = novel_url
+                all_novels_dict[sanitized_title] = novel_url
                 logging.info(f"Added novel: {novel_title.text.strip()}")
         except requests.RequestException as e:
             logging.error(f"Error fetching URL {novels_url}: {e}")
@@ -75,7 +76,11 @@ def download_novel_html_files(file_name: str, directory: str) -> None:
         try:
             response = requests.get(novel_url)
             page_text = response.text
-            file_name = os.path.join(directory, f"{novel_title}.html")
+            if novel_title.endswith(".html"):
+                file_name = os.path.join(directory, novel_title)
+            else:
+                file_name = os.path.join(directory, f"{novel_title}.html")
+
             try:
                 with open(file_name, "w") as html_file:
                     html_file.write(page_text)
@@ -117,23 +122,10 @@ def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
                 novel_genres = get_novel_genres(novel_url, soup)
                 novel_num_volumes = get_number_of_volumes(novel_url, soup)
 
-                # Download the image
-                novel_image_url = novel_base_url + novel_image_url
-                if not url_exists(novel_image_url):
-                    logging.warning(f"URL does not exist: {novel_image_url}")
-                    image_path = "Not found"
-                else:
-                    try:
-                        response = requests.get(novel_image_url)
-                    except requests.RequestException as e:
-                        logging.error(f"Error fetching URL {novel_image_url}: {e}")
-                        image_path = "Not found"
-                    else:
-                        # Save the image
-                        image_path = os.path.join("media", f"{novel_title}.png")
-                        os.makedirs(os.path.dirname(image_path), exist_ok=True)
-                        with open(image_path, "wb") as image:
-                            image.write(response.content)
+                sanitized_title = sanitize_filename(novel_title)
+                image_path = download_novel_image(novel_base_url,
+                                                  novel_image_url,
+                                                  sanitized_title)
 
                 data = {
                     "title": novel_title,

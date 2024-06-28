@@ -1,4 +1,5 @@
 import logging
+import re
 
 import requests
 
@@ -40,7 +41,8 @@ def extract_filename_from_url(url: str) -> str:
 
 def sanitize_filename(filename: str) -> str:
     """
-    Replaces '/' character in filenames with underscore.
+    Sanitizes a filename by removing or replacing characters that are not
+    allowed or could cause issues in file paths.
 
     Args:
         filename (str): The original filename.
@@ -48,4 +50,10 @@ def sanitize_filename(filename: str) -> str:
     Returns:
         str: The sanitized filename.
     """
-    return filename.replace("/", "_")
+    sanitized_filename = re.sub(r"[<>:'/\\|?*\'']", "", filename)
+    sanitized_filename = sanitized_filename.replace(
+        " ", "_").replace("%20", "_")
+    if sanitized_filename.endswith(".html"):
+        sanitized_filename = sanitized_filename[:-5]
+
+    return sanitized_filename

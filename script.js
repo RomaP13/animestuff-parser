@@ -12,10 +12,8 @@ fetch("data/data.json")
 
           <td>${novel.title}</td>
           <td>${novel.status}</td>
-          <td>${novel.synopsis}</td>
           <td>${novel.genres}</td>
           <td>${novel.num_volumes}</td>
-          <td>${novel.url}</td>
         </tr>
       `;
     }

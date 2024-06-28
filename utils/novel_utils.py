@@ -1,8 +1,12 @@
 import logging
+import os
 import re
 from typing import Optional
 
+import requests
 from bs4 import BeautifulSoup, Tag
+
+from utils.url_utils import url_exists
 
 
 def find_header_by_partial_match(soup: BeautifulSoup,
@@ -193,3 +197,42 @@ def get_number_of_volumes(novel_url: str, soup: BeautifulSoup) -> int:
         logging.warning(f"Novel volumes weren't found. URL: {novel_url}")
 
     return 0
+
+
+def download_novel_image(novel_base_url: str, novel_image_url: str,
+                         sanitized_title: str) -> str:
+    """
+    Downloads the novel image and saves it to the media directory.
+
+    Args:
+        novel_base_url (str): The base URL of the novel website.
+        novel_image_url (str): The URL or partial URL of the novel image.
+        sanitized_title (str): The sanitized title of the novel used for naming
+        the saved image file.
+
+    Returns:
+        str: The file path where the image is saved, or "Not found"
+        if the image could not be downloaded.
+    """
+    # Check if image url is on another website
+    if not novel_image_url.startswith("https"):
+        novel_image_url = novel_base_url + novel_image_url
+
+    # Download image
+    if not url_exists(novel_image_url):
+        logging.warning(f"Image URL does not exist: {novel_image_url}")
+        image_path = "Not found"
+    else:
+        try:
+            response = requests.get(novel_image_url)
+        except requests.RequestException as e:
+            logging.error(f"Error fetching URL {novel_image_url}: {e}")
+            image_path = "Not found"
+        else:
+            # Save the image
+            image_path = os.path.join("media", f"{sanitized_title}.png")
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            with open(image_path, "wb") as image:
+                image.write(response.content)
+
+    return image_path
