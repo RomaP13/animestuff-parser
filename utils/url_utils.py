@@ -50,9 +50,12 @@ def sanitize_filename(filename: str) -> str:
     Returns:
         str: The sanitized filename.
     """
-    sanitized_filename = re.sub(r"[<>:'/\\|?*\'']", "", filename)
-    sanitized_filename = sanitized_filename.replace(
-        " ", "_").replace("%20", "_")
+    # Replace spaces with underscores in filename
+    sanitized_filename = filename.replace(" ", "_").replace("%20", "_")
+
+    # Replace any non-alphanumeric character with an underscore
+    sanitized_filename = re.sub(r"[^a-zA-Z0-9]", "_", sanitized_filename)
+
     if sanitized_filename.endswith(".html"):
         sanitized_filename = sanitized_filename[:-5]
 

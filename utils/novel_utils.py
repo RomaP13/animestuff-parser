@@ -45,14 +45,16 @@ def get_novel_title(novel_url: str, soup: BeautifulSoup) -> str:
     """
     title = soup.find("title")
 
+    # If the page does not have a title, then try to find it in the headers
     if not title or not title.text.strip():
         title = find_header_by_partial_match(soup, "EPUB")
 
     if title:
         novel_title = title.text.strip()
-        if novel_title.startswith("(EPUB)"):
-            return novel_title[7:]
-        elif novel_title:
+        # Remove '(EPUB)' from the title
+        novel_title = novel_title.replace("(EPUB)", "")
+
+        if novel_title:
             return novel_title
         else:
             logging.warning(f"Novel title wasn't found. URL: {novel_url}")
