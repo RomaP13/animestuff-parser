@@ -1,6 +1,6 @@
 # Define directories
 HTML_FILES_DIR = html_files
-MEDIA_DIR = media
+MEDIA_DIR = static/media
 DATA_DIR = data
 
 # Clean target

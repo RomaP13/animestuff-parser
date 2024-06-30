@@ -5,12 +5,11 @@ fetch("data/data.json")
   .then(function(novels) {
     let placeholder = document.querySelector("#data-output");
     let out = "";
-    for(let novel of novels) {
+    for (let novel of novels) {
       out += `
         <tr>
           <td> <img src='${novel.image}'> </td>
-
-          <td>${novel.title}</td>
+          <td><a href='novel_details.html?id=${encodeURIComponent(novel.id)}'>${novel.title}</a></td>
           <td>${novel.status}</td>
           <td>${novel.genres}</td>
           <td>${novel.num_volumes}</td>
@@ -19,4 +18,4 @@ fetch("data/data.json")
     }
 
     placeholder.innerHTML = out;
-  })
+  });

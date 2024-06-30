@@ -159,12 +159,13 @@ def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
                 novel_genres = get_novel_genres(novel_url, soup)
                 novel_num_volumes = get_number_of_volumes(novel_url, soup)
 
-                image_path = download_novel_image(novel_base_url,
-                                                  novel_image_url,
-                                                  sanitized_title)
+                image_path = download_novel_image(
+                    novel_base_url, novel_image_url, media_dir, sanitized_title)
 
+                count += 1
                 # Collect data in a dictionary
                 data = {
+                    "id": count,
                     "title": novel_title,
                     "status": novel_status,
                     "synopsis": novel_synopsis,
@@ -175,7 +176,6 @@ def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
                 }
                 data_dict.append(data)
 
-                count += 1
                 logging.info(f"{count}. Processed {novel_title}")
                 sleep(random.randrange(1, 2))
 

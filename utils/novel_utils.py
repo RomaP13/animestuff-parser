@@ -202,13 +202,14 @@ def get_number_of_volumes(novel_url: str, soup: BeautifulSoup) -> int:
 
 
 def download_novel_image(novel_base_url: str, novel_image_url: str,
-                         sanitized_title: str) -> str:
+                         media_dir: str, sanitized_title: str) -> str:
     """
     Downloads the novel image and saves it to the media directory.
 
     Args:
         novel_base_url (str): The base URL of the novel website.
         novel_image_url (str): The URL or partial URL of the novel image.
+        media_dir (str): The directory where media files will be saved.
         sanitized_title (str): The sanitized title of the novel used for naming
         the saved image file.
 
@@ -232,7 +233,7 @@ def download_novel_image(novel_base_url: str, novel_image_url: str,
             image_path = "Not found"
         else:
             # Save the image
-            image_path = os.path.join("media", f"{sanitized_title}.png")
+            image_path = os.path.join(media_dir, f"{sanitized_title}.png")
             os.makedirs(os.path.dirname(image_path), exist_ok=True)
             with open(image_path, "wb") as image:
                 image.write(response.content)
