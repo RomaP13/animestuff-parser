@@ -26,7 +26,7 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
         file_name (str): The name of the file where the collected URLs
         will be saved.
     """
-    logging.info("(1) Getting novels...")
+    logging.info("[INFO] - (1) Getting novels...")
 
     index = 1
     all_novels_dict = {}
@@ -40,11 +40,11 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
             novels_url = f"{website_base_url}index{index}.html"
 
         if not url_exists(novels_url):
-            logging.warning(f"URL does not exist: {novels_url}")
+            logging.warning(f"[WARNING] - URL does not exist: {novels_url}")
             break
 
         try:
-            logging.info(f"{index}: Fetching URL: {novels_url}")
+            logging.info(f"[INFO] - {index}: Fetching URL: {novels_url}")
             response = requests.get(novels_url)
             page_content = response.content
             soup = BeautifulSoup(page_content, "lxml")
@@ -54,7 +54,7 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
             # Ensure number of titles matches number of links
             if len(novel_links) != len(novel_titles):
                 logging.warning(
-                    f"Number of links({len(novel_links)}) and titles({len(novel_titles)}) mismatch")
+                    f"[WARNING] - Number of links({len(novel_links)}) and titles({len(novel_titles)}) mismatch")
 
             for novel_title, novel_link in zip(novel_titles, novel_links):
                 novel_url = novel_link.get("href")
@@ -63,9 +63,9 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
                 sanitized_title = sanitize_filename(filename)
 
                 all_novels_dict[sanitized_title] = novel_url
-                logging.info(f"Added novel: {novel_title.text.strip()}")
+                logging.info(f"[INFO] - Added novel: {novel_title.text.strip()}")
         except requests.RequestException as e:
-            logging.error(f"Error fetching URL {novels_url}: {e}")
+            logging.error(f"[ERROR] - Error fetching URL {novels_url}: {e}")
 
         sleep(random.randrange(1, 2))
         index += 1
@@ -74,9 +74,9 @@ def get_all_novels(website_base_url: str, novel_base_url: str,
     try:
         with open(file_name, "w") as file:
             json.dump(all_novels_dict, file, indent=4, ensure_ascii=False)
-            logging.info(f"Saved all novels to {file_name}")
+            logging.info(f"[INFO] - Saved all novels to {file_name}")
     except IOError as e:
-        logging.error(f"Error writing to file {file_name}: {e}")
+        logging.error(f"[ERROR] - Error writing to file {file_name}: {e}")
 
 
 def download_novel_html_files(file_name: str, directory: str) -> None:
@@ -88,34 +88,34 @@ def download_novel_html_files(file_name: str, directory: str) -> None:
         file_name (str): The name of the JSON file containing the novel URLs.
         directory (str): The directory where the HTML files will be saved.
     """
-    logging.info(f"(2) Downloading novel HTML files to {directory}...")
+    logging.info(f"[INFO] - (2) Downloading novel HTML files to {directory}...")
 
     with open(file_name, "r") as file:
         all_novels = json.load(file)
 
     count = 0
     for novel_title, novel_url in all_novels.items():
+        if not url_exists(novel_url):
+            logging.warning(
+                f"[WARNING] - URL does not exist: {novel_url}. Title: {novel_title}")
+            continue
+
         try:
             response = requests.get(novel_url)
             page_text = response.text
-
-            # Do not add '.html' if it already there
-            if novel_title.endswith(".html"):
-                file_name = os.path.join(directory, novel_title)
-            else:
-                file_name = os.path.join(directory, f"{novel_title}.html")
+            file_name = os.path.join(directory, f"{novel_title}.html")
 
             # Save the HTML content to a file
             try:
                 with open(file_name, "w") as html_file:
                     html_file.write(page_text)
             except IOError as e:
-                logging.error(f"Error writing to file {file_name}: {e}")
+                logging.error(f"[ERROR] - Error writing to file {file_name}: {e}")
             count += 1
-            logging.info(f"{count}: Downloaded {novel_title}")
+            logging.info(f"[INFO] - {count}: Downloaded {novel_title}")
             sleep(random.randrange(1, 2))
         except requests.RequestException as e:
-            logging.error(f"Error downloading URL {novel_url}: {e}")
+            logging.error(f"[ERROR] - Error downloading URL {novel_url}: {e}")
 
 
 def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
@@ -132,7 +132,7 @@ def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
         all_novels_file (str): The JSON file containing all novel URLs.
         data_file (str): The file where the extracted data will be saved.
     """
-    logging.info(f"(3) Extracting data from HTML files in {html_files_dir}...")
+    logging.info(f"[INFO] - (3) Extracting data from HTML files in {html_files_dir}...")
 
     with open(all_novels_file, "r", encoding="utf-8") as json_file:
         all_novels = json.load(json_file)
@@ -145,7 +145,8 @@ def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
             sanitized_title = file_name.rsplit(".", 1)[0]
             novel_url = all_novels.get(sanitized_title, "URL not found")
             if novel_url == "URL not found":
-                logging.warning(f"URL wasn't found for title: {sanitized_title}")
+                logging.warning(
+                    f"[WARNING] - URL wasn't found for title: {sanitized_title}")
 
             with open(file_path, "r", encoding="utf-8") as file:
                 page_content = file.read()
@@ -176,13 +177,13 @@ def get_data_from_html_files(novel_base_url: str, html_files_dir: str,
                 }
                 data_dict.append(data)
 
-                logging.info(f"{count}. Processed {novel_title}")
+                logging.info(f"[INFO] - {count}. Processed {novel_title}")
                 sleep(random.randrange(1, 2))
 
     # Save extracted data to a JSON file
     try:
         with open(data_file, "w") as json_file:
             json.dump(data_dict, json_file, indent=4, ensure_ascii=False)
-            logging.info(f"Saved extracted data to {data_file}")
+            logging.info(f"[INFO] - Saved extracted data to {data_file}")
     except IOError as e:
-        logging.error(f"Error writing to file {data_file}: {e}")
+        logging.error(f"[ERROR] - Error writing to file {data_file}: {e}")

@@ -11,7 +11,8 @@ class TestNovelImageExtraction(unittest.TestCase):
     def setUpClass(cls):
         filename = "tests/data/urls_with_bugged_images.txt"
         cls.urls = []
-        cls.novel_base_url = ""
+        cls.novel_base_url = "https://animestuff.me/docs/assets/html/"
+        cls.media_dir = "static/media/"
 
         try:
             with open(filename, "r") as file:
@@ -32,7 +33,8 @@ class TestNovelImageExtraction(unittest.TestCase):
             soup = BeautifulSoup(page_content, "lxml")
             novel_image_url = get_novel_image_url(url, soup)
             image_path = download_novel_image(self.novel_base_url,
-                                              novel_image_url, "title")
+                                              novel_image_url, self.media_dir,
+                                              "title")
             msg = f"Image not found for URL: {novel_image_url}"
 
             self.assertNotEqual(image_path, "Not found", msg)

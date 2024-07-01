@@ -57,9 +57,9 @@ def get_novel_title(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_title:
             return novel_title
         else:
-            logging.warning(f"Novel title wasn't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel title wasn't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel title header wasn't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel title header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -78,20 +78,21 @@ def get_novel_image_url(novel_url: str, soup: BeautifulSoup) -> str:
     """
     div_tag = soup.find(class_="ani")
     if not div_tag:
-        logging.warning(f"Div tag not found for URL: {novel_url}")
+        logging.warning(f"[WARNING] - Div tag not found for URL: {novel_url}")
         return "Not found"
 
     image_tag = div_tag.find("img")
     if not isinstance(image_tag, Tag):
-        logging.warning(f"Image tag not found for URL: {novel_url}")
+        logging.warning(f"[WARNING] - Image tag not found for URL: {novel_url}")
         return "Not found"
 
     image_url = image_tag.get("src", "")
     if not image_url:
-        logging.warning(f"Image URL not found for URL: {novel_url}")
+        logging.warning(f"[WARNING] - Image URL not found for URL: {novel_url}")
         return "Not found"
 
-    return image_url
+    # Strip any leading or trailing whitespace or newlines
+    return image_url.strip()
 
 
 def get_novel_status(novel_url: str, soup: BeautifulSoup) -> str:
@@ -113,9 +114,9 @@ def get_novel_status(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_status:
             return novel_status.text.strip()
         else:
-            logging.warning(f"Novel status wasn't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel status wasn't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel status header wasn't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel status header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -139,10 +140,10 @@ def get_novel_synopsis(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_synopsis:
             return novel_synopsis.text.strip()
         else:
-            logging.warning(f"Novel synopsis wasn't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel synopsis wasn't found. URL: {novel_url}")
     else:
         logging.warning(
-            f"Novel synopsis header wasn't found. URL: {novel_url}")
+            f"[WARNING] - Novel synopsis header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -166,9 +167,9 @@ def get_novel_genres(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_genres:
             return novel_genres.text.strip()
         else:
-            logging.warning(f"Novel genres weren't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel genres weren't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel genre header wasn't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel genre header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -194,9 +195,9 @@ def get_number_of_volumes(novel_url: str, soup: BeautifulSoup) -> int:
         if novel_num_volumes > 0:
             return novel_num_volumes
         else:
-            logging.warning(f"Novel volumes weren't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel volumes weren't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel volumes weren't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel volumes weren't found. URL: {novel_url}")
 
     return 0
 
@@ -223,13 +224,13 @@ def download_novel_image(novel_base_url: str, novel_image_url: str,
 
     # Download image
     if not url_exists(novel_image_url):
-        logging.warning(f"Image URL does not exist: {novel_image_url}")
+        logging.warning(f"[WARNING] - Image URL does not exist: {novel_image_url}")
         image_path = "Not found"
     else:
         try:
             response = requests.get(novel_image_url)
         except requests.RequestException as e:
-            logging.error(f"Error fetching URL {novel_image_url}: {e}")
+            logging.error(f"[ERROR] - Error fetching URL {novel_image_url}: {e}")
             image_path = "Not found"
         else:
             # Save the image

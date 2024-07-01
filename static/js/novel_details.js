@@ -13,6 +13,8 @@ fetch("data/data.json")
       document.getElementById("novel-status").textContent = novel.status;
       document.getElementById("novel-genres").textContent = novel.genres;
       document.getElementById("novel-volumes").textContent = novel.num_volumes;
+      const novelUrlElement = document.getElementById("novel-url");
+      novelUrlElement.href = novel.url;
     } else {
       // Handle the case where the novel is not found
       document.querySelector(".novel-detail-container").innerHTML = "<p>Novel not found.</p>";

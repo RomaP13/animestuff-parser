@@ -15,10 +15,10 @@ def url_exists(url: str) -> bool:
         bool: True if the URL exists (status code 200), False otherwise.
     """
     try:
-        response = requests.head(url)
+        response = requests.head(url, allow_redirects=True)
         return response.status_code == 200
     except requests.RequestException as e:
-        logging.error(f"Error checking URL {url}: {e}")
+        logging.error(f"[ERROR] - Error checking URL {url}: {e}")
         return False
 
 
@@ -53,10 +53,10 @@ def sanitize_filename(filename: str) -> str:
     # Replace spaces with underscores in filename
     sanitized_filename = filename.replace(" ", "_").replace("%20", "_")
 
-    # Replace any non-alphanumeric character with an underscore
-    sanitized_filename = re.sub(r"[^a-zA-Z0-9]", "_", sanitized_filename)
-
     if sanitized_filename.endswith(".html"):
         sanitized_filename = sanitized_filename[:-5]
+
+    # Replace any non-alphanumeric character with an underscore
+    sanitized_filename = re.sub(r"[^a-zA-Z0-9]", "_", sanitized_filename)
 
     return sanitized_filename
