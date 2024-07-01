@@ -1,3 +1,4 @@
-Someday, For You Who lived here / Forever, For You Who Stay There => Someday, For You Who lived here _ Forever, For You Who Stay There
+Someday, For You Who lived here / Forever, For You Who Stay There => Someday,_For_You_Who_lived_here__Forever,_For_You_Who_Stay_There
 ValidFileName => ValidFileName
-Another/Invalid/Name => Another_Invalid_Name
+Another/Invalid/Name => AnotherInvalidName
+Invalid%20Name => Invalid_Name

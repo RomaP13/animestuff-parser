@@ -8,7 +8,7 @@ def main() -> None:
     WEBSITE_BASE_URL = "https://animestuff.me/"
     NOVEL_BASE_URL = "https://animestuff.me/docs/assets/html/"
     HTML_FILES_DIR = "html_files"
-    MEDIA_DIR = "media"
+    MEDIA_DIR = "static/media"
     DATA_DIR = "data"
     DATA_FILE = os.path.join(DATA_DIR, "data.json")
     NOVELS_FILE = os.path.join(DATA_DIR, "all_novels_dict.json")

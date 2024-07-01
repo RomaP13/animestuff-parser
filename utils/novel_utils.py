@@ -1,8 +1,12 @@
 import logging
+import os
 import re
 from typing import Optional
 
+import requests
 from bs4 import BeautifulSoup, Tag
+
+from utils.url_utils import url_exists
 
 
 def find_header_by_partial_match(soup: BeautifulSoup,
@@ -41,19 +45,21 @@ def get_novel_title(novel_url: str, soup: BeautifulSoup) -> str:
     """
     title = soup.find("title")
 
+    # If the page does not have a title, then try to find it in the headers
     if not title or not title.text.strip():
         title = find_header_by_partial_match(soup, "EPUB")
 
     if title:
         novel_title = title.text.strip()
-        if novel_title.startswith("(EPUB)"):
-            return novel_title[7:]
-        elif novel_title:
+        # Remove '(EPUB)' from the title
+        novel_title = novel_title.replace("(EPUB)", "")
+
+        if novel_title:
             return novel_title
         else:
-            logging.warning(f"Novel title wasn't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel title wasn't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel title header wasn't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel title header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -72,20 +78,21 @@ def get_novel_image_url(novel_url: str, soup: BeautifulSoup) -> str:
     """
     div_tag = soup.find(class_="ani")
     if not div_tag:
-        logging.warning(f"Div tag not found for URL: {novel_url}")
+        logging.warning(f"[WARNING] - Div tag not found for URL: {novel_url}")
         return "Not found"
 
     image_tag = div_tag.find("img")
     if not isinstance(image_tag, Tag):
-        logging.warning(f"Image tag not found for URL: {novel_url}")
+        logging.warning(f"[WARNING] - Image tag not found for URL: {novel_url}")
         return "Not found"
 
     image_url = image_tag.get("src", "")
     if not image_url:
-        logging.warning(f"Image URL not found for URL: {novel_url}")
+        logging.warning(f"[WARNING] - Image URL not found for URL: {novel_url}")
         return "Not found"
 
-    return image_url
+    # Strip any leading or trailing whitespace or newlines
+    return image_url.strip()
 
 
 def get_novel_status(novel_url: str, soup: BeautifulSoup) -> str:
@@ -107,9 +114,9 @@ def get_novel_status(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_status:
             return novel_status.text.strip()
         else:
-            logging.warning(f"Novel status wasn't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel status wasn't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel status header wasn't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel status header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -133,10 +140,10 @@ def get_novel_synopsis(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_synopsis:
             return novel_synopsis.text.strip()
         else:
-            logging.warning(f"Novel synopsis wasn't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel synopsis wasn't found. URL: {novel_url}")
     else:
         logging.warning(
-            f"Novel synopsis header wasn't found. URL: {novel_url}")
+            f"[WARNING] - Novel synopsis header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -160,9 +167,9 @@ def get_novel_genres(novel_url: str, soup: BeautifulSoup) -> str:
         if novel_genres:
             return novel_genres.text.strip()
         else:
-            logging.warning(f"Novel genres weren't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel genres weren't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel genre header wasn't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel genre header wasn't found. URL: {novel_url}")
 
     return "Not found"
 
@@ -188,8 +195,48 @@ def get_number_of_volumes(novel_url: str, soup: BeautifulSoup) -> int:
         if novel_num_volumes > 0:
             return novel_num_volumes
         else:
-            logging.warning(f"Novel volumes weren't found. URL: {novel_url}")
+            logging.warning(f"[WARNING] - Novel volumes weren't found. URL: {novel_url}")
     else:
-        logging.warning(f"Novel volumes weren't found. URL: {novel_url}")
+        logging.warning(f"[WARNING] - Novel volumes weren't found. URL: {novel_url}")
 
     return 0
+
+
+def download_novel_image(novel_base_url: str, novel_image_url: str,
+                         media_dir: str, sanitized_title: str) -> str:
+    """
+    Downloads the novel image and saves it to the media directory.
+
+    Args:
+        novel_base_url (str): The base URL of the novel website.
+        novel_image_url (str): The URL or partial URL of the novel image.
+        media_dir (str): The directory where media files will be saved.
+        sanitized_title (str): The sanitized title of the novel used for naming
+        the saved image file.
+
+    Returns:
+        str: The file path where the image is saved, or "Not found"
+        if the image could not be downloaded.
+    """
+    # Check if image url is on another website
+    if not novel_image_url.startswith("https"):
+        novel_image_url = novel_base_url + novel_image_url
+
+    # Download image
+    if not url_exists(novel_image_url):
+        logging.warning(f"[WARNING] - Image URL does not exist: {novel_image_url}")
+        image_path = "Not found"
+    else:
+        try:
+            response = requests.get(novel_image_url)
+        except requests.RequestException as e:
+            logging.error(f"[ERROR] - Error fetching URL {novel_image_url}: {e}")
+            image_path = "Not found"
+        else:
+            # Save the image
+            image_path = os.path.join(media_dir, f"{sanitized_title}.png")
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            with open(image_path, "wb") as image:
+                image.write(response.content)
+
+    return image_path
