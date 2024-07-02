@@ -10,7 +10,7 @@ def main() -> None:
     HTML_FILES_DIR = "html_files"
     MEDIA_DIR = "static/media"
     DATA_DIR = "data"
-    DATA_FILE = os.path.join(DATA_DIR, "data.json")
+    DATA_FILE = os.path.join(DATA_DIR, "novels_data.json")
     NOVELS_FILE = os.path.join(DATA_DIR, "all_novels_dict.json")
 
     # Create necessary directories

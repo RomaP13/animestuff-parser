@@ -1,7 +1,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 const novelId = Number(urlParams.get("id"));
 
-fetch("data/data.json")
+fetch("data/novels_data.json")
   .then(response => response.json())
   .then(novels => {
     const novel = novels.find(n => n.id === novelId); // Find the novel by id

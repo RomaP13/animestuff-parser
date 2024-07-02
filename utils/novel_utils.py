@@ -225,18 +225,16 @@ def download_novel_image(novel_base_url: str, novel_image_url: str,
     # Download image
     if not url_exists(novel_image_url):
         logging.warning(f"[WARNING] - Image URL does not exist: {novel_image_url}")
-        image_path = "Not found"
-    else:
-        try:
-            response = requests.get(novel_image_url)
-        except requests.RequestException as e:
-            logging.error(f"[ERROR] - Error fetching URL {novel_image_url}: {e}")
-            image_path = "Not found"
-        else:
-            # Save the image
-            image_path = os.path.join(media_dir, f"{sanitized_title}.png")
-            os.makedirs(os.path.dirname(image_path), exist_ok=True)
-            with open(image_path, "wb") as image:
-                image.write(response.content)
+        return "Not found"
 
-    return image_path
+    try:
+        # Save the image
+        response = requests.get(novel_image_url)
+        image_path = os.path.join(media_dir, f"{sanitized_title}.png")
+        with open(image_path, "wb") as image:
+            image.write(response.content)
+        return image_path
+    except requests.RequestException as e:
+        logging.error(f"[ERROR] - Error fetching URL {novel_image_url}: {e}")
+
+    return "Not found"
