@@ -27,3 +27,8 @@ async_parse:
 server:
 	@echo "Starting the server..."
 	@python3 -m http.server 8000
+
+# Run tests
+test:
+	@echo "Running tests..."
+	@python3 -m unittest

@@ -136,9 +136,18 @@ def get_novel_synopsis(novel_url: str, soup: BeautifulSoup) -> str:
     synopsis_header = find_header_by_partial_match(soup, "synopsis")
 
     if synopsis_header:
-        novel_synopsis = synopsis_header.find_next_sibling("p")
-        if novel_synopsis:
-            return novel_synopsis.text.strip()
+        novel_synopsis_parts = []
+        # Get the next sibling of the header
+        next_sibling = synopsis_header.find_next_sibling()
+
+        # Iterate until the next header is found or no more siblings
+        while next_sibling and not next_sibling.name.startswith("h"):
+            if next_sibling.name == "p":
+                novel_synopsis_parts.append(next_sibling.text.strip())
+            next_sibling = next_sibling.find_next_sibling()
+
+        if novel_synopsis_parts:
+            return " ".join(novel_synopsis_parts)
         else:
             logging.warning(f"[WARNING] - Novel synopsis wasn't found. URL: {novel_url}")
     else:
