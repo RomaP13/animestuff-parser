@@ -9,6 +9,7 @@ from utils.novel_utils import get_novel_title
 class TestNovelTitleExtraction(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Set up class variables and read URLs from the input file."""
         filename = "tests/data/urls_with_bugged_titles.txt"
         cls.urls = []
 
