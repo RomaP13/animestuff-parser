@@ -16,6 +16,12 @@ parse:
 	@echo "Running the Python file to parse the website..."
 	@python3 main.py
 
+# Run the async parser
+.PHONY: async_parse
+async_parse:
+	@echo "Running the async Python file to parse the website..."
+	@python3 async_main.py
+
 # Run the server
 .PHONY: server
 server:

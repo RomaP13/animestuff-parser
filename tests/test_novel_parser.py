@@ -12,9 +12,14 @@ from utils.novel_utils import (get_novel_genres, get_novel_status,
 class TestNovelUtils(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Set up class variables and read URLs and page contents
+        from the input file.
+        """
         filename = "tests/data/urls_test_cases.txt"
         cls.urls = []
         cls.page_contents = {}
+
         try:
             with open(filename, "r") as file:
                 for line in file:
@@ -30,6 +35,7 @@ class TestNovelUtils(unittest.TestCase):
 
     @staticmethod
     def fetch_page_content(url: str):
+        """Fetch the page content for a given URL."""
         try:
             response = requests.get(url, timeout=10)
             return response.content

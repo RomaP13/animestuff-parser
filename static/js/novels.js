@@ -1,4 +1,4 @@
-fetch("data/data.json")
+fetch("data/novels_data.json")
   .then(function(response) {
     return response.json();
   })
