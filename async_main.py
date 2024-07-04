@@ -1,7 +1,8 @@
-import os
 import asyncio
-from modules.logging_config import setup_logging
+import os
+
 from modules.async_novel_parser import gather_novels_data
+from modules.logging_config import setup_logging
 
 
 def main() -> None:
