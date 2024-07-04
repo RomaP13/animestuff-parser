@@ -26,8 +26,8 @@ This project uses the following libraries:
 1. Clone the repository:
    
 ```bash
-git clone <repository_url>
-cd <repository_directory>
+git clone git@github.com:RomaP13/animestuff-parser.git
+cd animestuff-parser/
 ```
 
 2. Install dependencies using pipenv:
