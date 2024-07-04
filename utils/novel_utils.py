@@ -231,13 +231,12 @@ def download_novel_image(novel_base_url: str, novel_image_url: str,
     if not novel_image_url.startswith("https"):
         novel_image_url = novel_base_url + novel_image_url
 
-    # Download image
     if not url_exists(novel_image_url):
         logging.warning(f"[WARNING] - Image URL does not exist: {novel_image_url}")
         return "Not found"
 
+    # Download and save the image
     try:
-        # Save the image
         response = requests.get(novel_image_url)
         image_path = os.path.join(media_dir, f"{sanitized_title}.png")
         with open(image_path, "wb") as image:

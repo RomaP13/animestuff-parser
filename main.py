@@ -1,4 +1,5 @@
 import os
+
 from modules.logging_config import setup_logging
 from modules.novel_parser import (download_novel_html_files, get_all_novels,
                                   get_data_from_html_files)
