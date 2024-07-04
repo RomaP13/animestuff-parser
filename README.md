@@ -53,3 +53,6 @@ To run the asynchronous parser:
 ```bash
 make async_parse
 ```
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
